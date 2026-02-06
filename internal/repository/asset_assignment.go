@@ -98,9 +98,12 @@ func (r *AssetAssignmentRepository) GetCurrentByPersonID(ctx context.Context, pe
 	var aas []models.AssetAssignment
 	query := `SELECT aa.id, aa.asset_id, aa.person_id, aa.effective_from, aa.effective_to, COALESCE(aa.notes, '') as notes,
 			  aa.created_at, aa.updated_at, aa.deleted_at,
-			  COALESCE(a.name, '') as asset_name, COALESCE(p.name, '') as person_name
+			  COALESCE(a.name, '') as asset_name, COALESCE(p.name, '') as person_name,
+			  COALESCE(at.name, '') as asset_type_name,
+			  COALESCE(a.model, '') as asset_model, COALESCE(a.serial_number, '') as asset_serial_number
 			  FROM asset_assignments aa
 			  LEFT JOIN assets a ON aa.asset_id = a.id
+			  LEFT JOIN asset_types at ON a.asset_type_id = at.id
 			  LEFT JOIN persons p ON aa.person_id = p.id
 			  WHERE aa.person_id = ? AND aa.deleted_at IS NULL
 			  AND aa.effective_from <= NOW()

@@ -9,6 +9,14 @@
     { path: '/persons', label: 'Persons', icon: 'fas fa-users' },
     { path: '/assignments', label: 'Assignments', icon: 'fas fa-exchange-alt' },
     { 
+      label: 'Reports', 
+      icon: 'fas fa-chart-bar',
+      children: [
+        { path: '/reports/assets', label: 'Asset Listing', icon: 'fas fa-boxes' },
+        { path: '/reports/persons', label: 'Person Listing', icon: 'fas fa-users' },
+      ]
+    },
+    { 
       label: 'Configuration', 
       icon: 'fas fa-cog',
       children: [

@@ -10,6 +10,8 @@ import Properties from './pages/config/Properties.svelte';
 import Attributes from './pages/config/Attributes.svelte';
 import Users from './pages/config/Users.svelte';
 import Profile from './pages/Profile.svelte';
+import AssetListing from './pages/reports/AssetListing.svelte';
+import PersonListing from './pages/reports/PersonListing.svelte';
 
 export const routes = {
   '/': Dashboard,
@@ -24,5 +26,7 @@ export const routes = {
   '/config/attributes': Attributes,
   '/config/users': Users,
   '/profile': Profile,
+  '/reports/assets': AssetListing,
+  '/reports/persons': PersonListing,
   '*': Dashboard,
 };

@@ -125,8 +125,11 @@ type AssetAssignment struct {
 	Notes         string   `db:"notes" json:"Notes"`
 
 	// Joined fields
-	AssetName  string `db:"asset_name" json:"AssetName,omitempty"`
-	PersonName string `db:"person_name" json:"PersonName,omitempty"`
+	AssetName         string `db:"asset_name" json:"AssetName,omitempty"`
+	PersonName        string `db:"person_name" json:"PersonName,omitempty"`
+	AssetTypeName     string `db:"asset_type_name" json:"AssetTypeName,omitempty"`
+	AssetModel        string `db:"asset_model" json:"AssetModel,omitempty"`
+	AssetSerialNumber string `db:"asset_serial_number" json:"AssetSerialNumber,omitempty"`
 }
 
 // AssetWithAssignment combines asset info with current assignment

@@ -1,5 +1,6 @@
 <script>
   import { onMount } from 'svelte';
+  import { querystring } from 'svelte-spa-router';
   import { api, notifications } from '../stores.js';
   import Card from '../../../shared/components/Card.svelte';
   import DataTable from '../../../shared/components/DataTable.svelte';
@@ -19,6 +20,7 @@
   let editingAsset = null;
   let deleteTarget = null;
   let saving = false;
+  let initialEditHandled = false;
 
   let form = {
     AssetTypeID: '',
@@ -56,10 +58,32 @@
   onMount(async () => {
     await loadData();
     
+    // Check for edit query parameter
+    checkEditParam();
+    
     // Event delegation for table buttons
     document.addEventListener('click', handleTableClick);
     return () => document.removeEventListener('click', handleTableClick);
   });
+  
+  // React to querystring changes
+  $: if ($querystring && !initialEditHandled) {
+    checkEditParam();
+  }
+  
+  function checkEditParam() {
+    const params = new URLSearchParams($querystring);
+    const editId = params.get('edit');
+    if (editId && assets.length > 0) {
+      const asset = assets.find(a => a.ID === parseInt(editId));
+      if (asset) {
+        initialEditHandled = true;
+        openEdit(asset);
+        // Clear the query param from URL
+        window.history.replaceState(null, '', '#/assets');
+      }
+    }
+  }
 
   async function loadData() {
     loading = true;

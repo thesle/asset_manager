@@ -1,5 +1,6 @@
 <script>
   import { onMount } from 'svelte';
+  import { querystring } from 'svelte-spa-router';
   import { api, notifications } from '../stores.js';
   import Card from '../../../shared/components/Card.svelte';
   import DataTable from '../../../shared/components/DataTable.svelte';
@@ -18,6 +19,7 @@
   let editingPerson = null;
   let deleteTarget = null;
   let saving = false;
+  let initialEditHandled = false;
 
   let form = { Name: '', Email: '', Phone: '' };
   let customFieldValues = {};
@@ -44,9 +46,29 @@
 
   onMount(async () => {
     await loadData();
+    checkEditParam();
     document.addEventListener('click', handleTableClick);
     return () => document.removeEventListener('click', handleTableClick);
   });
+  
+  // React to querystring changes
+  $: if ($querystring && !initialEditHandled) {
+    checkEditParam();
+  }
+  
+  function checkEditParam() {
+    const params = new URLSearchParams($querystring);
+    const editId = params.get('edit');
+    if (editId && persons.length > 0) {
+      const person = persons.find(p => p.ID === parseInt(editId));
+      if (person) {
+        initialEditHandled = true;
+        openEdit(person);
+        // Clear the query param from URL
+        window.history.replaceState(null, '', '#/persons');
+      }
+    }
+  }
 
   async function loadData() {
     loading = true;
