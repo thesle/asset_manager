@@ -1,0 +1,36 @@
+# Binaries
+build/
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Config files with secrets
+config.yaml
+
+# Go
+go.sum
+
+# Node
+node_modules/
+web/dist/
+desktop/frontend/dist/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Test
+*.test
+coverage.out
+
+# Wails
+desktop/build/

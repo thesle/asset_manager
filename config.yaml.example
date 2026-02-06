@@ -1,0 +1,14 @@
+server:
+  api_port: 8084
+  web_port: 8085
+
+database:
+  host: localhost
+  port: 3306
+  user: asset_manager
+  password: your_password_here
+  name: asset_manager
+
+jwt:
+  secret: change-this-to-a-secure-random-string
+  expiry_hours: 24

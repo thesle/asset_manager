@@ -1,0 +1,64 @@
+/* Global styles */
+html, body {
+  height: 100%;
+  margin: 0;
+}
+
+#app {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.main-content {
+  flex: 1;
+  display: flex;
+}
+
+.sidebar {
+  width: 250px;
+  flex-shrink: 0;
+}
+
+.content-area {
+  flex: 1;
+  padding: 1.5rem;
+  background-color: #fafafa;
+}
+
+/* Utility classes */
+.is-clickable {
+  cursor: pointer;
+}
+
+.gap-1 { gap: 0.25rem; }
+.gap-2 { gap: 0.5rem; }
+.gap-3 { gap: 1rem; }
+
+/* Table improvements */
+.table-container {
+  overflow-x: auto;
+}
+
+/* Card improvements */
+.card {
+  margin-bottom: 1.5rem;
+}
+
+/* Form improvements */
+.field:not(:last-child) {
+  margin-bottom: 1rem;
+}
+
+/* Action buttons in tables */
+.table .actions {
+  white-space: nowrap;
+}
+
+.table .actions .button {
+  margin-right: 0.25rem;
+}
+
+.table .actions .button:last-child {
+  margin-right: 0;
+}
