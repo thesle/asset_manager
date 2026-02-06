@@ -48,7 +48,7 @@
 
 {#if definitions.length > 0}
   <div class="custom-fields">
-    {#each definitions as def}
+    {#each definitions as def (def.ID)}
       {#if def.DataType === 'boolean'}
         <div class="field">
           <label class="checkbox">
@@ -61,14 +61,23 @@
           </label>
         </div>
       {:else if def.DataType === 'enum'}
-        <FormField
-          label={def.Name}
-          type="select"
-          name={`custom_${def.ID}`}
-          value={values[def.ID] || ''}
-          options={getEnumOptions(def.EnumOptions)}
-          on:input={(e) => handleChange(def.ID, e.target.value)}
-        />
+        <div class="field">
+          <label class="label" for={`custom_enum_${def.ID}`}>{def.Name}</label>
+          <div class="control">
+            <div class="select is-fullwidth">
+              <select
+                id={`custom_enum_${def.ID}`}
+                value={values[def.ID] || ''}
+                on:change={(e) => handleChange(def.ID, e.target.value)}
+              >
+                <option value="">Select...</option>
+                {#each getEnumOptions(def.EnumOptions) as opt}
+                  <option value={opt.value}>{opt.label}</option>
+                {/each}
+              </select>
+            </div>
+          </div>
+        </div>
       {:else}
         <FormField
           label={def.Name}
@@ -77,6 +86,7 @@
           value={values[def.ID] || ''}
           step={getStep(def.DataType)}
           on:input={(e) => handleChange(def.ID, e.target.value)}
+          on:change={(e) => handleChange(def.ID, e.target.value)}
         />
       {/if}
     {/each}
