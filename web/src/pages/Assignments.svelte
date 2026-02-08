@@ -37,14 +37,27 @@
   }
 
   const columns = [
-    { key: 'Name', label: 'Asset', sortable: true },
+    { 
+      key: 'Name', 
+      label: 'Asset', 
+      sortable: true,
+      render: (val, row) => `<a href="#/assets?edit=${row.ID}" class="has-text-link">${val}</a>`
+    },
     { key: 'AssetTypeName', label: 'Type', sortable: true },
     { 
       key: 'PurchasedAt', 
       label: 'Purchased',
       render: (v) => v?.Time ? new Date(v.Time).toLocaleDateString() : '-'
     },
-    { key: 'CurrentAssignee', label: 'Assigned To', sortable: true },
+    { 
+      key: 'CurrentAssignee', 
+      label: 'Assigned To', 
+      sortable: true,
+      render: (val, row) => {
+        if (!val || val === 'Unassigned') return `<span class="has-text-grey">${val || 'Unassigned'}</span>`;
+        return `<a href="#/persons?edit=${row.CurrentAssigneeID}" class="has-text-link">${val}</a>`;
+      }
+    },
     { 
       key: 'AssignedFrom', 
       label: 'Assigned Since',
