@@ -1,5 +1,5 @@
 SHELL := /bin/bash
-.PHONY: all api web desktop migrate dev-api dev-web dev-desktop clean test deps
+.PHONY: all api web desktop migrate dev-api dev-web dev-api-web dev-desktop clean test deps
 
 # Build output directories
 BUILD_DIR := build
@@ -68,6 +68,13 @@ dev-api:
 dev-web:
 	cd web && npm run dev
 
+# Development: run API and web together
+dev-api-web:
+	@echo "Starting API and Web servers..."
+	@$(GOCMD) run ./cmd/api -config config.yaml & API_PID=$$!; \
+	cd web && npm run dev --host; \
+	kill $$API_PID 2>/dev/null || true
+
 # Development: run desktop app
 dev-desktop:
 	@cd desktop && \
@@ -118,6 +125,7 @@ help:
 	@echo "  run-migrate  Run database migrations"
 	@echo "  dev-api      Run API server in development mode"
 	@echo "  dev-web      Run web frontend in development mode"
+	@echo "  dev-api-web  Run API and web frontend together"
 	@echo "  dev-desktop  Run desktop app in development mode"
 	@echo "  test         Run tests"
 	@echo "  clean        Clean build artifacts"
