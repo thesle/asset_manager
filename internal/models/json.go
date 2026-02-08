@@ -16,12 +16,27 @@ func (nt NullTime) MarshalJSON() ([]byte, error) {
 
 // UnmarshalJSON for NullTime
 func (nt *NullTime) UnmarshalJSON(data []byte) error {
-	if string(data) == "null" {
+	str := string(data)
+	if str == "null" || str == `""` {
 		nt.Valid = false
 		return nil
 	}
+
+	// Try standard RFC3339 format first
 	var t time.Time
-	if err := json.Unmarshal(data, &t); err != nil {
+	if err := json.Unmarshal(data, &t); err == nil {
+		nt.Time = t
+		nt.Valid = true
+		return nil
+	}
+
+	// Try date-only format (YYYY-MM-DD)
+	var dateStr string
+	if err := json.Unmarshal(data, &dateStr); err != nil {
+		return err
+	}
+	t, err := time.Parse("2006-01-02", dateStr)
+	if err != nil {
 		return err
 	}
 	nt.Time = t

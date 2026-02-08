@@ -8,6 +8,7 @@
   import FormField from '../../../shared/components/FormField.svelte';
   import Loading from '../../../shared/components/Loading.svelte';
   import ConfirmDialog from '../../../shared/components/ConfirmDialog.svelte';
+  import SearchInput from '../../../shared/components/SearchInput.svelte';
 
   let assets = [];
   let persons = [];
@@ -17,6 +18,8 @@
   let showUnassignConfirm = false;
   let editingAssignment = null;
   let unassignTarget = null;
+  let searchTerm = '';
+  let showUnassignedOnly = false;
 
   let form = { AssetID: '', PersonID: '', Notes: '', EffectiveDate: '' };
   let editForm = { ID: '', AssetID: '', PersonID: '', EffectiveDate: '', Notes: '' };
@@ -36,6 +39,11 @@
   const columns = [
     { key: 'Name', label: 'Asset', sortable: true },
     { key: 'AssetTypeName', label: 'Type', sortable: true },
+    { 
+      key: 'PurchasedAt', 
+      label: 'Purchased',
+      render: (v) => v?.Time ? new Date(v.Time).toLocaleDateString() : '-'
+    },
     { key: 'CurrentAssignee', label: 'Assigned To', sortable: true },
     { 
       key: 'AssignedFrom', 
@@ -182,15 +190,63 @@
   $: personOptions = persons.filter(p => p.Name !== 'Unassigned').map(p => ({ value: p.ID, label: p.Name }));
   $: selectedAsset = assets.find(a => a.ID === form.AssetID);
   $: editPersonOptions = persons.filter(p => p.Name !== 'Unassigned').map(p => ({ value: p.ID, label: p.Name }));
+
+  $: filteredAssets = assets.filter(asset => {
+    // Apply unassigned filter
+    if (showUnassignedOnly && asset.CurrentAssignee && asset.CurrentAssignee !== 'Unassigned') {
+      return false;
+    }
+    // Apply search filter
+    if (searchTerm.trim()) {
+      const term = searchTerm.toLowerCase();
+      return (
+        (asset.Name || '').toLowerCase().includes(term) ||
+        (asset.AssetTypeName || '').toLowerCase().includes(term) ||
+        (asset.CurrentAssignee || '').toLowerCase().includes(term) ||
+        (asset.Model || '').toLowerCase().includes(term) ||
+        (asset.SerialNumber || '').toLowerCase().includes(term)
+      );
+    }
+    return true;
+  });
+
+  function handleSearch(term) {
+    searchTerm = term;
+  }
+
+  function toggleUnassignedOnly() {
+    showUnassignedOnly = !showUnassignedOnly;
+  }
 </script>
 
 <h1 class="title">Asset Assignments</h1>
 
 <Card>
+  <div class="mb-4">
+    <div class="field is-grouped">
+      <div class="control is-expanded">
+        <SearchInput placeholder="Search assets..." onSearch={handleSearch} bind:value={searchTerm} />
+      </div>
+      <div class="control">
+        <button
+          class="button"
+          class:is-info={showUnassignedOnly}
+          class:is-outlined={!showUnassignedOnly}
+          on:click={toggleUnassignedOnly}
+        >
+          <span class="icon is-small">
+            <i class="fas fa-user-slash"></i>
+          </span>
+          <span>{showUnassignedOnly ? 'Show All' : 'Unassigned Only'}</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
   {#if loading}
     <Loading />
   {:else}
-    <DataTable {columns} data={assets} emptyMessage="No assets found" />
+    <DataTable {columns} data={filteredAssets} emptyMessage="No assets found" />
   {/if}
 </Card>
 
