@@ -10,10 +10,26 @@
   let expandedAssetId = null;
   let assignmentHistory = {};
   let loadingHistory = {};
+  let searchTerm = '';
+  let showDeleted = false;
 
   // For edit modal integration
   let showEditModal = false;
   let editingAsset = null;
+
+  $: filteredAssets = searchTerm.trim()
+    ? assets.filter(asset => {
+        const term = searchTerm.toLowerCase();
+        return (
+          (asset.Name || '').toLowerCase().includes(term) ||
+          (asset.AssetTypeName || '').toLowerCase().includes(term) ||
+          (asset.Model || '').toLowerCase().includes(term) ||
+          (asset.SerialNumber || '').toLowerCase().includes(term) ||
+          (asset.CurrentAssignee || '').toLowerCase().includes(term) ||
+          (asset.properties || []).some(p => (p.Value || '').toLowerCase().includes(term))
+        );
+      })
+    : assets;
 
   onMount(async () => {
     await loadData();
@@ -21,9 +37,11 @@
 
   async function loadData() {
     loading = true;
+    expandedAssetId = null;
+    assignmentHistory = {};
     try {
       const [assetsResult, propsResult] = await Promise.all([
-        api.getAssetsWithAssignments(),
+        api.getAssetsWithAssignments(showDeleted),
         api.getProperties()
       ]);
       const rawAssets = assetsResult || [];
@@ -43,6 +61,12 @@
     } finally {
       loading = false;
     }
+  }
+
+  async function toggleDeleted() {
+    showDeleted = !showDeleted;
+    searchTerm = '';
+    await loadData();
   }
 
   async function toggleExpand(assetId) {
@@ -87,10 +111,44 @@
 <h1 class="title">Asset Listing Report</h1>
 
 <Card>
+  <div class="report-controls mb-4">
+    <div class="field is-grouped">
+      <div class="control has-icons-left is-expanded">
+        <input
+          class="input"
+          type="text"
+          placeholder="Search across all fields..."
+          bind:value={searchTerm}
+        />
+        <span class="icon is-left">
+          <i class="fas fa-search"></i>
+        </span>
+      </div>
+      <div class="control">
+        <button
+          class="button"
+          class:is-danger={showDeleted}
+          class:is-outlined={!showDeleted}
+          on:click={toggleDeleted}
+        >
+          <span class="icon is-small">
+            <i class="fas" class:fa-trash={!showDeleted} class:fa-undo={showDeleted}></i>
+          </span>
+          <span>{showDeleted ? 'Show Active' : 'Show Deleted'}</span>
+        </button>
+      </div>
+    </div>
+    {#if showDeleted}
+      <p class="help is-danger">Showing deleted records</p>
+    {/if}
+  </div>
+
   {#if loading}
     <Loading />
   {:else if assets.length === 0}
-    <p class="has-text-grey">No assets found</p>
+    <p class="has-text-grey">{showDeleted ? 'No deleted assets found' : 'No assets found'}</p>
+  {:else if filteredAssets.length === 0}
+    <p class="has-text-grey">No matching assets found</p>
   {:else}
     <div class="table-container">
       <table class="table is-fullwidth is-hoverable">
@@ -108,7 +166,7 @@
           </tr>
         </thead>
         <tbody>
-          {#each assets as asset}
+          {#each filteredAssets as asset}
             <tr 
               class="is-clickable" 
               class:is-selected={expandedAssetId === asset.ID}
@@ -199,5 +257,9 @@
   }
   tr.is-selected td {
     border-color: #dbdbdb;
+  }
+  .report-controls {
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid #f0f0f0;
   }
 </style>

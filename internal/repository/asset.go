@@ -43,9 +43,13 @@ func (r *AssetRepository) GetByID(ctx context.Context, id int64) (*models.Asset,
 	return &asset, err
 }
 
-// GetAll retrieves all assets
-func (r *AssetRepository) GetAll(ctx context.Context) ([]models.Asset, error) {
+// GetAll retrieves all assets. If includeDeleted is true, returns only soft-deleted records.
+func (r *AssetRepository) GetAll(ctx context.Context, includeDeleted bool) ([]models.Asset, error) {
 	var assets []models.Asset
+	deletedFilter := "a.deleted_at IS NULL"
+	if includeDeleted {
+		deletedFilter = "a.deleted_at IS NOT NULL"
+	}
 	query := `SELECT a.id, a.asset_type_id, a.name, 
 			  COALESCE(a.model, '') as model, 
 			  COALESCE(a.serial_number, '') as serial_number, 
@@ -56,7 +60,7 @@ func (r *AssetRepository) GetAll(ctx context.Context) ([]models.Asset, error) {
 			  COALESCE(at.name, '') as asset_type_name
 			  FROM assets a
 			  LEFT JOIN asset_types at ON a.asset_type_id = at.id
-			  WHERE a.deleted_at IS NULL ORDER BY a.name`
+			  WHERE ` + deletedFilter + ` ORDER BY a.name`
 	err := r.db.SelectContext(ctx, &assets, query)
 	return assets, err
 }
@@ -79,9 +83,13 @@ func (r *AssetRepository) GetByAssetType(ctx context.Context, assetTypeID int64)
 	return assets, err
 }
 
-// GetWithCurrentAssignment retrieves all assets with their current assignment
-func (r *AssetRepository) GetWithCurrentAssignment(ctx context.Context) ([]models.AssetWithAssignment, error) {
+// GetWithCurrentAssignment retrieves all assets with their current assignment. If includeDeleted is true, returns only soft-deleted records.
+func (r *AssetRepository) GetWithCurrentAssignment(ctx context.Context, includeDeleted bool) ([]models.AssetWithAssignment, error) {
 	var assets []models.AssetWithAssignment
+	deletedFilter := "a.deleted_at IS NULL"
+	if includeDeleted {
+		deletedFilter = "a.deleted_at IS NOT NULL"
+	}
 	query := `SELECT a.id, a.asset_type_id, a.name, 
 			  COALESCE(a.model, '') as model, 
 			  COALESCE(a.serial_number, '') as serial_number, 
@@ -98,7 +106,7 @@ func (r *AssetRepository) GetWithCurrentAssignment(ctx context.Context) ([]model
 			      AND aa.effective_from <= NOW() 
 			      AND (aa.effective_to IS NULL OR aa.effective_to > NOW())
 			  LEFT JOIN persons p ON aa.person_id = p.id
-			  WHERE a.deleted_at IS NULL 
+			  WHERE ` + deletedFilter + ` 
 			  ORDER BY a.name`
 	err := r.db.SelectContext(ctx, &assets, query)
 	return assets, err

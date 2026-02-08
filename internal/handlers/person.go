@@ -27,7 +27,8 @@ func NewPersonHandler(repo *repository.PersonRepository, attributeRepo *reposito
 
 // GetAll returns all persons
 func (h *PersonHandler) GetAll(c *gin.Context) {
-	persons, err := h.repo.GetAll(context.Background())
+	includeDeleted := c.Query("include_deleted") == "true"
+	persons, err := h.repo.GetAll(context.Background(), includeDeleted)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"Error": "Failed to fetch persons"})
 		return

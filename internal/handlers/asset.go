@@ -27,7 +27,8 @@ func NewAssetHandler(repo *repository.AssetRepository, propertyRepo *repository.
 
 // GetAll returns all assets
 func (h *AssetHandler) GetAll(c *gin.Context) {
-	assets, err := h.repo.GetAll(context.Background())
+	includeDeleted := c.Query("include_deleted") == "true"
+	assets, err := h.repo.GetAll(context.Background(), includeDeleted)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"Error": "Failed to fetch assets"})
 		return
@@ -41,7 +42,8 @@ func (h *AssetHandler) GetAll(c *gin.Context) {
 
 // GetWithAssignments returns all assets with current assignment info
 func (h *AssetHandler) GetWithAssignments(c *gin.Context) {
-	assets, err := h.repo.GetWithCurrentAssignment(context.Background())
+	includeDeleted := c.Query("include_deleted") == "true"
+	assets, err := h.repo.GetWithCurrentAssignment(context.Background(), includeDeleted)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"Error": "Failed to fetch assets"})
 		return

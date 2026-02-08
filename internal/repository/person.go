@@ -34,11 +34,15 @@ func (r *PersonRepository) GetByID(ctx context.Context, id int64) (*models.Perso
 	return &person, err
 }
 
-// GetAll retrieves all persons
-func (r *PersonRepository) GetAll(ctx context.Context) ([]models.Person, error) {
+// GetAll retrieves all persons. If includeDeleted is true, returns only soft-deleted records.
+func (r *PersonRepository) GetAll(ctx context.Context, includeDeleted bool) ([]models.Person, error) {
 	var persons []models.Person
+	deletedFilter := "deleted_at IS NULL"
+	if includeDeleted {
+		deletedFilter = "deleted_at IS NOT NULL"
+	}
 	query := `SELECT id, name, COALESCE(email, '') as email, COALESCE(phone, '') as phone, created_at, updated_at, deleted_at 
-			  FROM persons WHERE deleted_at IS NULL ORDER BY name`
+			  FROM persons WHERE ` + deletedFilter + ` ORDER BY name`
 	err := r.db.SelectContext(ctx, &persons, query)
 	return persons, err
 }

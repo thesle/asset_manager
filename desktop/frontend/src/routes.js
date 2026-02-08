@@ -13,20 +13,24 @@ import Properties from '../../../web/src/pages/config/Properties.svelte';
 import Attributes from '../../../web/src/pages/config/Attributes.svelte';
 import Users from '../../../web/src/pages/config/Users.svelte';
 import Profile from '../../../web/src/pages/Profile.svelte';
+import AssetListing from "../../../web/src/pages/reports/AssetListing.svelte";
+import PersonListing from "../../../web/src/pages/reports/PersonListing.svelte";
 
 export const routes = {
-  '/': Dashboard,
-  '/config': Config,
-  '/login': Login,
-  '/assets': Assets,
-  '/assets/:id': AssetDetail,
-  '/persons': Persons,
-  '/persons/:id': PersonDetail,
-  '/assignments': Assignments,
-  '/config/asset-types': AssetTypes,
-  '/config/properties': Properties,
-  '/config/attributes': Attributes,
-  '/config/users': Users,
-  '/profile': Profile,
-  '*': Dashboard,
+  "/": Dashboard,
+  "/config": Config,
+  "/login": Login,
+  "/assets": Assets,
+  "/assets/:id": AssetDetail,
+  "/persons": Persons,
+  "/persons/:id": PersonDetail,
+  "/assignments": Assignments,
+  "/config/asset-types": AssetTypes,
+  "/config/properties": Properties,
+  "/config/attributes": Attributes,
+  "/config/users": Users,
+  "/profile": Profile,
+  "/reports/assets": AssetListing,
+  "/reports/persons": PersonListing,
+  "*": Dashboard,
 };
