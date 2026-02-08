@@ -72,7 +72,7 @@ dev-web:
 dev-api-web:
 	@echo "Starting API and Web servers..."
 	@$(GOCMD) run ./cmd/api -config config.yaml & API_PID=$$!; \
-	cd web && npm run dev --host; \
+	cd web && npm run dev -- --host; \
 	kill $$API_PID 2>/dev/null || true
 
 # Development: run desktop app
