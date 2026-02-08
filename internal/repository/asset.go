@@ -31,6 +31,7 @@ func (r *AssetRepository) GetByID(ctx context.Context, id int64) (*models.Asset,
 			  COALESCE(a.order_no, '') as order_no, 
 			  COALESCE(a.license_number, '') as license_number, 
 			  COALESCE(a.notes, '') as notes, 
+			  a.purchased_at,
 			  a.created_at, a.updated_at, a.deleted_at,
 			  COALESCE(at.name, '') as asset_type_name
 			  FROM assets a
@@ -56,6 +57,7 @@ func (r *AssetRepository) GetAll(ctx context.Context, includeDeleted bool) ([]mo
 			  COALESCE(a.order_no, '') as order_no, 
 			  COALESCE(a.license_number, '') as license_number, 
 			  COALESCE(a.notes, '') as notes, 
+			  a.purchased_at,
 			  a.created_at, a.updated_at, a.deleted_at,
 			  COALESCE(at.name, '') as asset_type_name
 			  FROM assets a
@@ -74,6 +76,7 @@ func (r *AssetRepository) GetByAssetType(ctx context.Context, assetTypeID int64)
 			  COALESCE(a.order_no, '') as order_no, 
 			  COALESCE(a.license_number, '') as license_number, 
 			  COALESCE(a.notes, '') as notes, 
+			  a.purchased_at,
 			  a.created_at, a.updated_at, a.deleted_at,
 			  COALESCE(at.name, '') as asset_type_name
 			  FROM assets a
@@ -96,6 +99,7 @@ func (r *AssetRepository) GetWithCurrentAssignment(ctx context.Context, includeD
 			  COALESCE(a.order_no, '') as order_no, 
 			  COALESCE(a.license_number, '') as license_number, 
 			  COALESCE(a.notes, '') as notes, 
+			  a.purchased_at,
 			  a.created_at, a.updated_at, a.deleted_at,
 			  COALESCE(at.name, '') as asset_type_name,
 			  p.name as currentassignee, p.id as currentassigneeid, aa.effective_from as assignedfrom
@@ -114,10 +118,10 @@ func (r *AssetRepository) GetWithCurrentAssignment(ctx context.Context, includeD
 
 // Create creates a new asset
 func (r *AssetRepository) Create(ctx context.Context, asset *models.Asset) error {
-	query := `INSERT INTO assets (asset_type_id, name, model, serial_number, order_no, license_number, notes) 
-			  VALUES (?, ?, ?, ?, ?, ?, ?)`
+	query := `INSERT INTO assets (asset_type_id, name, model, serial_number, order_no, license_number, notes, purchased_at) 
+			  VALUES (?, ?, ?, ?, ?, ?, ?, ?)`
 	result, err := r.db.ExecContext(ctx, query, asset.AssetTypeID, asset.Name, asset.Model,
-		asset.SerialNumber, asset.OrderNo, asset.LicenseNumber, asset.Notes)
+		asset.SerialNumber, asset.OrderNo, asset.LicenseNumber, asset.Notes, asset.PurchasedAt)
 	if err != nil {
 		return err
 	}
@@ -132,10 +136,10 @@ func (r *AssetRepository) Create(ctx context.Context, asset *models.Asset) error
 // Update updates an existing asset
 func (r *AssetRepository) Update(ctx context.Context, asset *models.Asset) error {
 	query := `UPDATE assets SET asset_type_id = ?, name = ?, model = ?, serial_number = ?, 
-			  order_no = ?, license_number = ?, notes = ?, updated_at = NOW() 
+			  order_no = ?, license_number = ?, notes = ?, purchased_at = ?, updated_at = NOW() 
 			  WHERE id = ? AND deleted_at IS NULL`
 	_, err := r.db.ExecContext(ctx, query, asset.AssetTypeID, asset.Name, asset.Model,
-		asset.SerialNumber, asset.OrderNo, asset.LicenseNumber, asset.Notes, asset.ID)
+		asset.SerialNumber, asset.OrderNo, asset.LicenseNumber, asset.Notes, asset.PurchasedAt, asset.ID)
 	return err
 }
 
@@ -156,6 +160,7 @@ func (r *AssetRepository) Search(ctx context.Context, term string) ([]models.Ass
 			  COALESCE(a.order_no, '') as order_no, 
 			  COALESCE(a.license_number, '') as license_number, 
 			  COALESCE(a.notes, '') as notes, 
+			  a.purchased_at,
 			  a.created_at, a.updated_at, a.deleted_at,
 			  COALESCE(at.name, '') as asset_type_name
 			  FROM assets a

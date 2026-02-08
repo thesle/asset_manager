@@ -109,6 +109,20 @@
         on:change
         on:blur
       />
+    {:else if type === 'date'}
+      <input
+        class="input"
+        class:is-danger={error}
+        type="date"
+        {name}
+        id={name}
+        {required}
+        {disabled}
+        bind:value
+        on:input
+        on:change
+        on:blur
+      />
     {:else}
       <input
         class="input"

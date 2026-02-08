@@ -159,6 +159,7 @@
             <th>Type</th>
             <th>Model</th>
             <th>Serial Number</th>
+            <th>Purchased At</th>
             <th>Assigned To</th>
             {#each properties as prop}
               <th>{prop.Name}</th>
@@ -189,6 +190,7 @@
               <td>{asset.AssetTypeName || '-'}</td>
               <td>{asset.Model || '-'}</td>
               <td>{asset.SerialNumber || '-'}</td>
+              <td>{asset.PurchasedAt?.Time ? formatDate(asset.PurchasedAt.Time) : '-'}</td>
               <td>
                 <span class:has-text-grey={!asset.CurrentAssignee || asset.CurrentAssignee === 'Unassigned'}>
                   {asset.CurrentAssignee || 'Unassigned'}
@@ -200,7 +202,7 @@
             </tr>
             {#if expandedAssetId === asset.ID}
               <tr>
-                <td colspan={6 + properties.length} class="accordion-content">
+                <td colspan={7 + properties.length} class="accordion-content">
                   <div class="box ml-5">
                     <h6 class="title is-6 mb-3">Assignment History</h6>
                     {#if loadingHistory[asset.ID]}

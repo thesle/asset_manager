@@ -42,13 +42,14 @@ type AssetType struct {
 // Asset represents a tracked asset
 type Asset struct {
 	BaseModel
-	AssetTypeID   int64  `db:"asset_type_id" json:"AssetTypeID"`
-	Name          string `db:"name" json:"Name"`
-	Model         string `db:"model" json:"Model"`
-	SerialNumber  string `db:"serial_number" json:"SerialNumber"`
-	OrderNo       string `db:"order_no" json:"OrderNo"`
-	LicenseNumber string `db:"license_number" json:"LicenseNumber"`
-	Notes         string `db:"notes" json:"Notes"`
+	AssetTypeID   int64    `db:"asset_type_id" json:"AssetTypeID"`
+	Name          string   `db:"name" json:"Name"`
+	Model         string   `db:"model" json:"Model"`
+	SerialNumber  string   `db:"serial_number" json:"SerialNumber"`
+	OrderNo       string   `db:"order_no" json:"OrderNo"`
+	LicenseNumber string   `db:"license_number" json:"LicenseNumber"`
+	Notes         string   `db:"notes" json:"Notes"`
+	PurchasedAt   NullTime `db:"purchased_at" json:"PurchasedAt,omitempty"`
 
 	// Joined fields (not stored in assets table)
 	AssetTypeName string `db:"asset_type_name" json:"AssetTypeName,omitempty"`

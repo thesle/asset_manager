@@ -21,6 +21,7 @@
   let deleteTarget = null;
   let saving = false;
   let initialEditHandled = false;
+  let searchTerm = '';
 
   let form = {
     AssetTypeID: '',
@@ -29,12 +30,18 @@
     SerialNumber: '',
     OrderNo: '',
     LicenseNumber: '',
-    Notes: ''
+    Notes: '',
+    PurchasedAt: ''
   };
   let customFieldValues = {};
 
   const columns = [
-    { key: 'Name', label: 'Name', sortable: true },
+    { 
+      key: 'Name', 
+      label: 'Name', 
+      sortable: true,
+      render: (val, row) => `<a href="#" class="has-text-link edit-btn" data-id="${row.ID}">${val}</a>`
+    },
     { key: 'AssetTypeName', label: 'Type', sortable: true },
     { key: 'Model', label: 'Model', sortable: true },
     { key: 'SerialNumber', label: 'Serial Number', sortable: true },
@@ -108,9 +115,11 @@
     const deleteBtn = e.target.closest('.delete-btn');
     
     if (editBtn) {
+      e.preventDefault();
       const id = parseInt(editBtn.dataset.id);
       openEdit(assets.find(a => a.ID === id));
     } else if (deleteBtn) {
+      e.preventDefault();
       const id = parseInt(deleteBtn.dataset.id);
       confirmDelete(assets.find(a => a.ID === id));
     }
@@ -125,7 +134,8 @@
       SerialNumber: '',
       OrderNo: '',
       LicenseNumber: '',
-      Notes: ''
+      Notes: '',
+      PurchasedAt: ''
     };
     customFieldValues = {};
     showModal = true;
@@ -140,7 +150,8 @@
       SerialNumber: asset.SerialNumber || '',
       OrderNo: asset.OrderNo || '',
       LicenseNumber: asset.LicenseNumber || '',
-      Notes: asset.Notes || ''
+      Notes: asset.Notes || '',
+      PurchasedAt: asset.PurchasedAt?.Time ? asset.PurchasedAt.Time.split('T')[0] : ''
     };
     
     // Load existing property values
@@ -166,7 +177,11 @@
   async function handleSave() {
     saving = true;
     try {
-      const data = { ...form, AssetTypeID: parseInt(form.AssetTypeID) };
+      const data = { 
+        ...form, 
+        AssetTypeID: parseInt(form.AssetTypeID),
+        PurchasedAt: form.PurchasedAt || null
+      };
       let assetId;
       
       if (editingAsset) {
@@ -186,7 +201,7 @@
       
       notifications.success(editingAsset ? 'Asset updated' : 'Asset created');
       showModal = false;
-      await loadData();
+      await reloadData();
     } catch (err) {
       notifications.error(err.message);
     } finally {
@@ -199,13 +214,14 @@
       await api.deleteAsset(deleteTarget.ID);
       notifications.success('Asset deleted');
       showDeleteConfirm = false;
-      await loadData();
+      await reloadData();
     } catch (err) {
       notifications.error(err.message);
     }
   }
 
   async function handleSearch(term) {
+    searchTerm = term;
     if (!term) {
       await loadData();
       return;
@@ -218,6 +234,14 @@
       notifications.error('Search failed');
     } finally {
       loading = false;
+    }
+  }
+
+  async function reloadData() {
+    if (searchTerm) {
+      await handleSearch(searchTerm);
+    } else {
+      await loadData();
     }
   }
 
@@ -238,7 +262,7 @@
 
 <Card>
   <div class="mb-4">
-    <SearchInput placeholder="Search assets..." onSearch={handleSearch} />
+    <SearchInput placeholder="Search assets..." onSearch={handleSearch} bind:value={searchTerm} />
   </div>
   
   <DataTable {columns} data={assets} {loading} emptyMessage="No assets found" />
@@ -262,6 +286,7 @@
         <FormField label="Serial Number" name="serialNumber" bind:value={form.SerialNumber} />
         <FormField label="Order No" name="orderNo" bind:value={form.OrderNo} />
         <FormField label="License Number" name="licenseNumber" bind:value={form.LicenseNumber} />
+        <FormField label="Purchased At" type="date" name="purchasedAt" bind:value={form.PurchasedAt} />
         <FormField label="Notes" type="textarea" name="notes" bind:value={form.Notes} />
       </div>
       <div class="column">

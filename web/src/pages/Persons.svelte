@@ -20,12 +20,20 @@
   let deleteTarget = null;
   let saving = false;
   let initialEditHandled = false;
+  let searchTerm = '';
 
   let form = { Name: '', Email: '', Phone: '' };
   let customFieldValues = {};
 
   const columns = [
-    { key: 'Name', label: 'Name', sortable: true },
+    { 
+      key: 'Name', 
+      label: 'Name', 
+      sortable: true,
+      render: (val, row) => row.Name === 'Unassigned' 
+        ? val 
+        : `<a href="#" class="has-text-link edit-btn" data-id="${row.ID}">${val}</a>`
+    },
     { key: 'Email', label: 'Email', sortable: true },
     { key: 'Phone', label: 'Phone' },
     { 
@@ -91,9 +99,11 @@
     const deleteBtn = e.target.closest('.delete-btn');
     
     if (editBtn) {
+      e.preventDefault();
       const id = parseInt(editBtn.dataset.id);
       openEdit(persons.find(p => p.ID === id));
     } else if (deleteBtn) {
+      e.preventDefault();
       const id = parseInt(deleteBtn.dataset.id);
       confirmDelete(persons.find(p => p.ID === id));
     }
@@ -152,7 +162,7 @@
       
       notifications.success(editingPerson ? 'Person updated' : 'Person created');
       showModal = false;
-      await loadData();
+      await reloadData();
     } catch (err) {
       notifications.error(err.message);
     } finally {
@@ -165,13 +175,14 @@
       await api.deletePerson(deleteTarget.ID);
       notifications.success('Person deleted');
       showDeleteConfirm = false;
-      await loadData();
+      await reloadData();
     } catch (err) {
       notifications.error(err.message);
     }
   }
 
   async function handleSearch(term) {
+    searchTerm = term;
     if (!term) {
       await loadData();
       return;
@@ -184,6 +195,14 @@
       notifications.error('Search failed');
     } finally {
       loading = false;
+    }
+  }
+
+  async function reloadData() {
+    if (searchTerm) {
+      await handleSearch(searchTerm);
+    } else {
+      await loadData();
     }
   }
 </script>
@@ -202,7 +221,7 @@
 
 <Card>
   <div class="mb-4">
-    <SearchInput placeholder="Search persons..." onSearch={handleSearch} />
+    <SearchInput placeholder="Search persons..." onSearch={handleSearch} bind:value={searchTerm} />
   </div>
   
   <DataTable {columns} data={persons} {loading} emptyMessage="No persons found" />
