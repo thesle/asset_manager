@@ -94,7 +94,19 @@
 
   function getPropertyValue(asset, propId) {
     const prop = asset.properties?.find(p => p.PropertyID === propId);
-    return prop?.Value || '-';
+    if (!prop?.Value) return '-';
+    
+    // Check if this property is a boolean type
+    const propDef = properties.find(p => p.ID === propId);
+    if (propDef?.DataType === 'boolean') {
+      return prop.Value === 'true' ? '✓' : '✗';
+    }
+    return prop.Value;
+  }
+
+  function getPropertyClass(propId) {
+    const propDef = properties.find(p => p.ID === propId);
+    return propDef?.DataType === 'boolean' ? 'has-text-centered' : '';
   }
 
   function formatDate(dateStr) {
@@ -190,14 +202,26 @@
               <td>{asset.AssetTypeName || '-'}</td>
               <td>{asset.Model || '-'}</td>
               <td>{asset.SerialNumber || '-'}</td>
-              <td>{asset.PurchasedAt?.Time ? formatDate(asset.PurchasedAt.Time) : '-'}</td>
+              <td>{asset.PurchasedAt ? formatDate(typeof asset.PurchasedAt === 'string' ? asset.PurchasedAt : asset.PurchasedAt.Time) : '-'}</td>
               <td>
                 <span class:has-text-grey={!asset.CurrentAssignee || asset.CurrentAssignee === 'Unassigned'}>
                   {asset.CurrentAssignee || 'Unassigned'}
                 </span>
               </td>
               {#each properties as prop}
-                <td>{getPropertyValue(asset, prop.ID)}</td>
+                <td class={getPropertyClass(prop.ID)}>
+                  {#if properties.find(p => p.ID === prop.ID)?.DataType === 'boolean'}
+                    {#if getPropertyValue(asset, prop.ID) === '✓'}
+                      <span class="icon has-text-success"><i class="fas fa-check"></i></span>
+                    {:else if getPropertyValue(asset, prop.ID) === '✗'}
+                      <span class="icon has-text-danger"><i class="fas fa-times"></i></span>
+                    {:else}
+                      -
+                    {/if}
+                  {:else}
+                    {getPropertyValue(asset, prop.ID)}
+                  {/if}
+                </td>
               {/each}
             </tr>
             {#if expandedAssetId === asset.ID}

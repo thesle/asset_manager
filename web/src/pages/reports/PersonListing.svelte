@@ -109,13 +109,18 @@
   function getAttributeValue(person, attrId) {
     const attr = person.attributes?.find((a) => a.AttributeID === attrId);
     if (!attr) return "-";
-
-    // Find the attribute definition to check type
-    const attrDef = attributes.find((a) => a.ID === attrId);
-    if (attrDef?.DataType === "boolean") {
-      return attr.Value === "true" ? "Yes" : "No";
-    }
     return attr.Value || "-";
+  }
+
+  function isAttributeBoolean(attrId) {
+    const attrDef = attributes.find((a) => a.ID === attrId);
+    return attrDef?.DataType === "boolean";
+  }
+
+  function getAttributeBoolValue(person, attrId) {
+    const attr = person.attributes?.find((a) => a.AttributeID === attrId);
+    if (!attr) return null;
+    return attr.Value === "true";
   }
 
   function getPropertyValue(assignment, propId) {
@@ -200,7 +205,18 @@
               </span>
               {#each attributes as attr}
                 <span class="tag is-info is-light mr-1">
-                  {attr.Name}: {getAttributeValue(person, attr.ID)}
+                  {attr.Name}:
+                  {#if isAttributeBoolean(attr.ID)}
+                    {#if getAttributeBoolValue(person, attr.ID) === true}
+                      <span class="icon is-small has-text-success ml-1"><i class="fas fa-check"></i></span>
+                    {:else if getAttributeBoolValue(person, attr.ID) === false}
+                      <span class="icon is-small has-text-danger ml-1"><i class="fas fa-times"></i></span>
+                    {:else}
+                      -
+                    {/if}
+                  {:else}
+                    {getAttributeValue(person, attr.ID)}
+                  {/if}
                 </span>
               {/each}
             </div>

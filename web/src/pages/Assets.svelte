@@ -151,7 +151,7 @@
       OrderNo: asset.OrderNo || '',
       LicenseNumber: asset.LicenseNumber || '',
       Notes: asset.Notes || '',
-      PurchasedAt: asset.PurchasedAt?.Time ? asset.PurchasedAt.Time.split('T')[0] : ''
+      PurchasedAt: asset.PurchasedAt ? (typeof asset.PurchasedAt === 'string' ? asset.PurchasedAt.split('T')[0] : (asset.PurchasedAt.Time ? asset.PurchasedAt.Time.split('T')[0] : '')) : ''
     };
     
     // Load existing property values

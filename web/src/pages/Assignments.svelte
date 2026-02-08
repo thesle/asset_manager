@@ -47,7 +47,7 @@
     { 
       key: 'PurchasedAt', 
       label: 'Purchased',
-      render: (v) => v?.Time ? new Date(v.Time).toLocaleDateString() : '-'
+      render: (v) => v ? new Date(typeof v === 'string' ? v : v.Time).toLocaleDateString() : '-'
     },
     { 
       key: 'CurrentAssignee', 
