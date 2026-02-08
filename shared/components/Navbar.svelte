@@ -42,7 +42,7 @@
             <span>{user.Username}</span>
           </a>
           <div class="navbar-dropdown is-right">
-            <a class="navbar-item" href="/profile">
+            <a class="navbar-item" href="#/profile">
               <span class="icon"><i class="fas fa-user-cog"></i></span>
               <span>Profile</span>
             </a>
