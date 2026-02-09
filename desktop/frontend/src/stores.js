@@ -95,6 +95,17 @@ export function getApi() {
   return apiClient;
 }
 
+// Export api as a proxy that delegates to getApi() for compatibility with web pages
+export const api = new Proxy({}, {
+  get(target, prop) {
+    const client = getApi();
+    if (typeof client[prop] === 'function') {
+      return client[prop].bind(client);
+    }
+    return client[prop];
+  }
+});
+
 // Initialize config from Wails backend
 export async function initConfig() {
   if (window.go && window.go.main && window.go.main.App) {
