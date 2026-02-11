@@ -145,6 +145,25 @@ func (h *AssignmentHandler) UnassignAsset(c *gin.Context) {
 		return
 	}
 
+	var req struct {
+		EffectiveDate string `json:"EffectiveDate"`
+	}
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"Error": "Invalid request body"})
+		return
+	}
+
+	// Parse the effective date
+	effectiveDate := time.Now()
+	if req.EffectiveDate != "" {
+		parsed, err := time.Parse("2006-01-02", req.EffectiveDate)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"Error": "Invalid date format"})
+			return
+		}
+		effectiveDate = parsed
+	}
+
 	// Get the 'Unassigned' person
 	unassigned, err := h.personRepo.GetUnassigned(context.Background())
 	if err != nil {
@@ -152,7 +171,7 @@ func (h *AssignmentHandler) UnassignAsset(c *gin.Context) {
 		return
 	}
 
-	if err := h.repo.AssignAsset(context.Background(), assetID, unassigned.ID, "Unassigned", time.Now()); err != nil {
+	if err := h.repo.AssignAsset(context.Background(), assetID, unassigned.ID, "Unassigned", effectiveDate); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"Error": "Failed to unassign asset"})
 		return
 	}

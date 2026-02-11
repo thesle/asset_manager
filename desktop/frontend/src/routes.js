@@ -13,9 +13,10 @@ import Properties from '../../../web/src/pages/config/Properties.svelte';
 import Attributes from '../../../web/src/pages/config/Attributes.svelte';
 import Users from '../../../web/src/pages/config/Users.svelte';
 import Profile from '../../../web/src/pages/Profile.svelte';
-import AssetListing from "../../../web/src/pages/reports/AssetListing.svelte";
-import PersonListing from "../../../web/src/pages/reports/PersonListing.svelte";
-import CustomReport from "../../../web/src/pages/reports/CustomReport.svelte";
+const AssetListing = await import('../../../web/src/pages/reports/AssetListing.svelte');
+const PersonListing = await import('../../../web/src/pages/reports/PersonListing.svelte');
+const CustomReport = await import('../../../web/src/pages/reports/CustomReport.svelte');
+const MultipleAssets = await import('../../../web/src/pages/reports/MultipleAssets.svelte');
 
 export const routes = {
   "/": Dashboard,
@@ -31,8 +32,9 @@ export const routes = {
   "/config/attributes": Attributes,
   "/config/users": Users,
   "/profile": Profile,
-  "/reports/assets": AssetListing,
-  "/reports/persons": PersonListing,
-  "/reports/custom": CustomReport,
+  '/reports/assets': AssetListing.default,
+  '/reports/persons': PersonListing.default,
+  '/reports/custom': CustomReport.default,
+  '/reports/multiple-assets': MultipleAssets.default,
   "*": Dashboard,
 };

@@ -103,6 +103,61 @@ func (r *ReportRepository) ExecuteAssetReport(ctx context.Context, filters []Fil
 	return results, nil
 }
 
+func (r *ReportRepository) ExecuteMultipleAssetsReport(ctx context.Context, assetTypeID int64) ([]map[string]interface{}, error) {
+	query := `
+		SELECT 
+			p.id, p.name, p.email, p.phone,
+			p.created_at, p.updated_at, p.deleted_at,
+			COUNT(DISTINCT aa.asset_id) as asset_count
+		FROM persons p
+		INNER JOIN asset_assignments aa ON p.id = aa.person_id
+		INNER JOIN assets a ON aa.asset_id = a.id
+		WHERE p.name != 'Unassigned'
+			AND a.asset_type_id = ?
+			AND (aa.effective_to IS NULL OR aa.effective_to > NOW())
+			AND a.deleted_at IS NULL
+		GROUP BY p.id, p.name, p.email, p.phone, p.created_at, p.updated_at, p.deleted_at
+		HAVING COUNT(DISTINCT aa.asset_id) > 1
+		ORDER BY asset_count DESC, p.name
+	`
+
+	rows, err := r.db.QueryxContext(ctx, query, assetTypeID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var results []map[string]interface{}
+	for rows.Next() {
+		result := make(map[string]interface{})
+		err := rows.MapScan(result)
+		if err != nil {
+			return nil, err
+		}
+		// Convert byte arrays to strings
+		convertBytesToStrings(result)
+		results = append(results, result)
+	}
+
+	if err = rows.Err(); err != nil {
+		return nil, err
+	}
+
+	// Load attributes for each person
+	for _, result := range results {
+		personID := result["id"]
+		attributes, err := r.getPersonAttributes(ctx, personID)
+		if err != nil {
+			continue
+		}
+		for k, v := range attributes {
+			result[k] = v
+		}
+	}
+
+	return results, nil
+}
+
 func (r *ReportRepository) ExecutePersonReport(ctx context.Context, filters []FilterCondition) ([]map[string]interface{}, error) {
 	// Separate filters into SQL filters (base fields) and post filters (attributes)
 	sqlFilters, postFilters := separateFilters(filters, "person")

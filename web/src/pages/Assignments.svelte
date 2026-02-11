@@ -15,7 +15,7 @@
   let loading = true;
   let showAssignModal = false;
   let showEditModal = false;
-  let showUnassignConfirm = false;
+  let showUnassignModal = false;
   let editingAssignment = null;
   let unassignTarget = null;
   let searchTerm = '';
@@ -23,6 +23,7 @@
 
   let form = { AssetID: '', PersonID: '', Notes: '', EffectiveDate: '' };
   let editForm = { ID: '', AssetID: '', PersonID: '', EffectiveDate: '', Notes: '' };
+  let unassignForm = { EffectiveDate: '' };
   
   // Get today's date in YYYY-MM-DD format for the date input
   function getTodayDate() {
@@ -153,7 +154,8 @@
 
   function confirmUnassign(asset) {
     unassignTarget = asset;
-    showUnassignConfirm = true;
+    unassignForm.EffectiveDate = new Date().toISOString().split('T')[0];
+    showUnassignModal = true;
   }
 
   async function handleAssign() {
@@ -188,12 +190,13 @@
   }
 
   async function handleUnassign() {
-    if (!unassignTarget) return;
+    if (!unassignTarget || !unassignForm.EffectiveDate) return;
     try {
-      await api.unassignAsset(unassignTarget.ID);
+      await api.unassignAsset(unassignTarget.ID, unassignForm.EffectiveDate);
       notifications.success('Asset unassigned');
-      showUnassignConfirm = false;
+      showUnassignModal = false;
       unassignTarget = null;
+      unassignForm = { EffectiveDate: '' };
       await loadData();
     } catch (err) {
       notifications.error(err.message);
@@ -326,12 +329,26 @@
   </svelte:fragment>
 </Modal>
 
-<ConfirmDialog
-  bind:active={showUnassignConfirm}
-  title="Unassign Asset"
-  message={unassignTarget ? `Are you sure you want to unassign "${unassignTarget.Name}" from ${unassignTarget.CurrentAssignee}?` : ''}
-  confirmText="Unassign"
-  confirmColor="warning"
-  onConfirm={handleUnassign}
-  onCancel={() => { showUnassignConfirm = false; unassignTarget = null; }}
-/>
+<Modal bind:active={showUnassignModal} title="Unassign Asset">
+  {#if unassignTarget}
+    <div class="notification is-warning is-light">
+      <p><strong>{unassignTarget.Name}</strong></p>
+      <p>Currently assigned to: <strong>{unassignTarget.CurrentAssignee}</strong></p>
+    </div>
+    
+    <FormField 
+      label="Effective Date" 
+      type="date" 
+      name="unassignEffectiveDate" 
+      bind:value={unassignForm.EffectiveDate}
+      required 
+    />
+    
+    <p class="help">Specify the date when the asset was unassigned (not necessarily today).</p>
+  {/if}
+  
+  <svelte:fragment slot="footer">
+    <Button color="warning" on:click={handleUnassign}>Unassign</Button>
+    <Button on:click={() => { showUnassignModal = false; unassignTarget = null; }}>Cancel</Button>
+  </svelte:fragment>
+</Modal>

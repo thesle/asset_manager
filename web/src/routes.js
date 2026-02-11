@@ -13,6 +13,7 @@ import Profile from './pages/Profile.svelte';
 import AssetListing from './pages/reports/AssetListing.svelte';
 import PersonListing from './pages/reports/PersonListing.svelte';
 import CustomReport from './pages/reports/CustomReport.svelte';
+import MultipleAssets from './pages/reports/MultipleAssets.svelte';
 
 export const routes = {
   '/': Dashboard,
@@ -30,5 +31,6 @@ export const routes = {
   '/reports/assets': AssetListing,
   '/reports/persons': PersonListing,
   '/reports/custom': CustomReport,
+  '/reports/multiple-assets': MultipleAssets,
   '*': Dashboard,
 };

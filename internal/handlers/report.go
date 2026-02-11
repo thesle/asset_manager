@@ -3,6 +3,7 @@ package handlers
 import (
 	"context"
 	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 
@@ -19,6 +20,7 @@ func NewReportHandler(repo *repository.ReportRepository) *ReportHandler {
 	}
 }
 
+// ExecuteCustomReport handles custom report execution
 func (h *ReportHandler) ExecuteCustomReport(c *gin.Context) {
 	var req repository.CustomReportRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
@@ -40,6 +42,23 @@ func (h *ReportHandler) ExecuteCustomReport(c *gin.Context) {
 		return
 	}
 
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"Error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, results)
+}
+
+// ExecuteMultipleAssetsReport handles multiple assets report execution
+func (h *ReportHandler) ExecuteMultipleAssetsReport(c *gin.Context) {
+	assetTypeID, err := strconv.ParseInt(c.Query("assetTypeId"), 10, 64)
+	if err != nil || assetTypeID == 0 {
+		c.JSON(http.StatusBadRequest, gin.H{"Error": "Invalid or missing asset type ID"})
+		return
+	}
+
+	results, err := h.repo.ExecuteMultipleAssetsReport(context.Background(), assetTypeID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"Error": err.Error()})
 		return

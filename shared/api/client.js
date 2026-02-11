@@ -121,12 +121,14 @@ export function createApiClient(baseUrl, getToken, onUnauthorized) {
         Notes: notes,
         EffectiveDate: effectiveDate,
       }),
-    unassignAsset: (assetId) => request("POST", `/api/assignments/unassign/${assetId}`),
+    unassignAsset: (assetId, effectiveDate) =>
+      request("POST", `/api/assignments/unassign/${assetId}`, { EffectiveDate: effectiveDate }),
     updateAssignment: (id, data) => request("PUT", `/api/assignments/${id}`, data),
     endAssignment: (id, endDate) => request("POST", `/api/assignments/${id}/end`, { EndDate: endDate }),
     deleteAssignment: (id) => request("DELETE", `/api/assignments/${id}`),
 
     // Reports
     executeCustomReport: (data) => request("POST", "/api/reports/custom", data),
+    getMultipleAssetsReport: (assetTypeId) => request("GET", `/api/reports/multiple-assets?assetTypeId=${assetTypeId}`),
   };
 }

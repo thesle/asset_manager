@@ -139,7 +139,9 @@ func main() {
 		api.DELETE("/assignments/:id", assignmentHandler.Delete)
 
 		// Reports
-		api.POST("/reports/custom", reportHandler.ExecuteCustomReport)
+		reports := api.Group("/reports")
+		reports.POST("/custom", reportHandler.ExecuteCustomReport)
+		reports.GET("/multiple-assets", reportHandler.ExecuteMultipleAssetsReport)
 	}
 
 	// Start server
