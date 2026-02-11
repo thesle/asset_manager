@@ -45,6 +45,7 @@ func main() {
 	attributeRepo := repository.NewAttributeRepository(db.DB)
 	personAttributeRepo := repository.NewPersonAttributeRepository(db.DB)
 	assignmentRepo := repository.NewAssetAssignmentRepository(db.DB)
+	reportRepo := repository.NewReportRepository(db.DB)
 
 	// Initialize handlers
 	authHandler := handlers.NewAuthHandler(userRepo, jwtService)
@@ -55,6 +56,7 @@ func main() {
 	personHandler := handlers.NewPersonHandler(personRepo, personAttributeRepo)
 	attributeHandler := handlers.NewAttributeHandler(attributeRepo)
 	assignmentHandler := handlers.NewAssignmentHandler(assignmentRepo, personRepo)
+	reportHandler := handlers.NewReportHandler(reportRepo)
 
 	// Setup router
 	router := gin.Default()
@@ -135,6 +137,9 @@ func main() {
 		api.PUT("/assignments/:id", assignmentHandler.Update)
 		api.POST("/assignments/:id/end", assignmentHandler.EndAssignment)
 		api.DELETE("/assignments/:id", assignmentHandler.Delete)
+
+		// Reports
+		api.POST("/reports/custom", reportHandler.ExecuteCustomReport)
 	}
 
 	// Start server

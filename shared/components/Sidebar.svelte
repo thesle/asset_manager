@@ -14,6 +14,7 @@
       children: [
         { path: '/reports/assets', label: 'Asset Listing', icon: 'fas fa-boxes' },
         { path: '/reports/persons', label: 'Person Listing', icon: 'fas fa-users' },
+        { path: '/reports/custom', label: 'Custom Report', icon: 'fas fa-filter' },
       ]
     },
     { 

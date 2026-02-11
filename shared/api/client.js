@@ -125,5 +125,8 @@ export function createApiClient(baseUrl, getToken, onUnauthorized) {
     updateAssignment: (id, data) => request("PUT", `/api/assignments/${id}`, data),
     endAssignment: (id, endDate) => request("POST", `/api/assignments/${id}/end`, { EndDate: endDate }),
     deleteAssignment: (id) => request("DELETE", `/api/assignments/${id}`),
+
+    // Reports
+    executeCustomReport: (data) => request("POST", "/api/reports/custom", data),
   };
 }
