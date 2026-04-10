@@ -1,6 +1,6 @@
 <script>
   import { onMount } from 'svelte';
-  import { api, notifications } from '../stores.js';
+  import { api, auth, notifications } from '../stores.js';
   import Card from '../../../shared/components/Card.svelte';
   import Loading from '../../../shared/components/Loading.svelte';
 
@@ -33,7 +33,9 @@
         assignedAssets: assetList.filter(a => a.CurrentAssignee && a.CurrentAssignee !== '' && a.CurrentAssignee !== 'Unassigned').length
       };
     } catch (err) {
-      notifications.error('Failed to load dashboard data');
+      if ($auth.isAuthenticated && err.message !== 'Unauthorized') {
+        notifications.error('Failed to load dashboard data');
+      }
     } finally {
       loading = false;
     }
